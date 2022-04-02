@@ -1,10 +1,17 @@
+from cgitb import handler
+from tkinter.messagebox import NO
 from pyfirmata import Arduino, util
 import time
 import pyfirmata
-
+from Network.mqtt import MQTT_Handler
+from Utility.Event import TimedEventManager
+import Topics as tp
 board = Arduino('COM5')
 
 
+MQTT_NAME = "G9_CDR"
+MQTT_PORT = 8883
+MQTT_SERVER = "vpn.ce.pdn.ac.lk"
 
 CorSeq_conf = [1, 1, 0, 2]  # correct sequence - confidential
 CorSeq_secret = [1, 1, 2, 2]  # correct sequence - confidential
@@ -23,17 +30,39 @@ LEDr = board.get_pin('d:6:p')  # red LED -> no/wrong sequence
 LEDg = board.get_pin('d:5:p')  # green LED -> correct sequence
 LED_lockdown = board.get_pin('d:9:p')  # lockdown indicator
 
-while True:
-    if pb1.read() is None or pb2.read() is None:
-        continue
-    print('Ready')  # check whether board ready to get inputs
-    break
+mqtt_handler = MQTT_Handler(MQTT_NAME,MQTT_SERVER,MQTT_PORT)
+timed_event_manager = TimedEventManager()
+
+
+def convert_voltage_to_temp(temp):
+    return temp
+
+def publish_temperature():
+    print("publishsing temperature")
+    temp =convert_voltage_to_temp(thm.read())
+    mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
+
+def publish_li():
+    print("publishsing light")
+    li = LDR.read()
+    mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
+
+
+timed_event_manager.add_event(1,publish_temperature)
+timed_event_manager.add_event(1,publish_li)
 
 while True:
     board.iterate()
+    if pb1.read() is None or pb2.read() is None or thm.read() is None:
+        continue
+  # check whether board ready to get inputs
+    break
+
+while True:
+    timed_event_manager.run()
+    board.iterate()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
-
     if temp > 0.75:
         buzz.write(1.0)
         LED_lockdown.write(1.0)  # buzzer on
