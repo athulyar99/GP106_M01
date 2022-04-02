@@ -14,8 +14,8 @@ MQTT_PORT = 8883
 MQTT_SERVER = "vpn.ce.pdn.ac.lk"
 
 CorSeq_conf = [1, 1, 0, 2]  # correct sequence - confidential
-CorSeq_secret = [1, 1, 2, 2]  # correct sequence - confidential
-CorSeq_top = [1, 2, 1, 2]  # correct sequence - confidential
+CorSeq_secret = [1, 1, 2, 2]  # correct sequence - secret
+CorSeq_top = [1, 2, 1, 2]  # correct sequence - top secret
 CheckSeq = []  # to store entered squence
 locked = True  # True -> no/wrong sequence, False -> correct sequence
 
@@ -46,6 +46,33 @@ def publish_li():
     print("publishsing light")
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
+
+def publish_seq():
+    print('Publishing Entered sequence')
+    seq = CheckSeq
+    mqtt_handler.publish(tp.CDR.SEQ_SEND,seq)
+
+def seq_checker(msg_payload):
+    if msg_payload == "GRANTED TOP SECRET":
+        print('Access Granted - TOP SECRET')
+        locked = False
+        ledg.write(1.0)
+
+    elif msg_payload == "GRANTED SECRET":
+        print('Access Granted - SECRET')
+        locked = False
+        ledg.write(1.0)
+
+    elif msg_payload == "GRANTED CONFIDENTIAL":
+        print('Access Granted - CONFIDENTIAL')
+        locked = False
+        ledg.write(1.0)
+
+    elif msg_payload == "DENIED":
+        print('Access Denied')
+        LED_lockdown.write(1.0)
+        buzz.write(1.0)
+        CheckSeq.clear()
 
 
 timed_event_manager.add_event(1,publish_temperature)
