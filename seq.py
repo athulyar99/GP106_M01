@@ -87,7 +87,6 @@ def lockdown(msg_payload): #Turns the system into lockdown status
 
 timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
-timed_event_manager.add_event(1,publish_pressure)
 
 mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
 #to react to incoming messages from mqtt
@@ -132,6 +131,7 @@ while True:
         if pressure_sensor_status is True:
             buzz.write(1.0)  # buzzer on
             LED_lockdown.write(1.0)
+            publish_pressure()
 
         if pb1.read() == True and pb2.read() == True:  # both pressed
             print('Response Recorded')
@@ -149,16 +149,7 @@ while True:
         # print("hello world")
 
         if len(CheckSeq) == 4:
-            if CheckSeq == CorSeq_conf or CheckSeq == CorSeq_secret or CheckSeq == CorSeq_top:  # if sequence correct
-                print('Access Granted')
-                locked = False
-                LEDg.write(1.0)
-                break
-
-            else:  # if sequence incorrect
-                print('Access Denied')
-                CheckSeq.clear()
-                continue
+            publish_seq()
 
     else:
         # print(locked)
