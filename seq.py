@@ -56,17 +56,17 @@ def seq_checker(msg_payload):
     if msg_payload == "GRANTED TOP SECRET":
         print('Access Granted - TOP SECRET')
         locked = False
-        ledg.write(1.0)
+        LEDg.write(1.0)
 
     elif msg_payload == "GRANTED SECRET":
         print('Access Granted - SECRET')
         locked = False
-        ledg.write(1.0)
+        LEDg.write(1.0)
 
     elif msg_payload == "GRANTED CONFIDENTIAL":
         print('Access Granted - CONFIDENTIAL')
         locked = False
-        ledg.write(1.0)
+        LEDg.write(1.0)
 
     elif msg_payload == "DENIED":
         print('Access Denied')
