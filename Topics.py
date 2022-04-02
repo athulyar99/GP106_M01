@@ -52,6 +52,7 @@ class PO:
     LOCKDOWN = _po("LOCKDOWN")
 
 class CDR:
+    ###Topics
     _cdr = Topic_Wrapper('CDR')
     TEMPERATURE = _cdr("TEMPERATURE")
     LIGHT_INTENSITY = _cdr("LIGHT_INTENSITY")
@@ -63,6 +64,12 @@ class CDR:
     RAISE_ALARM = _cdr("ALARM_RAISE")
     PANIC_BUTTON = _cdr("PANIC_BUTTON")
     LOCKDOWN = _cdr("LOCKDOWN")
+
+    #Topic Payloads
+    GRANTED_TOPSECRET = "GRANTED TOP SECRET"
+    GRANTED_SECRET = "GRANTED SECRET"
+    GRANTED_CONFIDENTIAL = "GRANTED CONFIDENTIAL"
+    ACCESS_DENIED = "DENIED"
 ###############################################################
 
 
