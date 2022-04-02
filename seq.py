@@ -68,7 +68,7 @@ def seq_checker(msg_payload):
         locked = False
         LEDg.write(1.0)
 
-    elif msg_payload == "DENIED":
+    else:
         print('Access Denied')
         LED_lockdown.write(1.0)
         buzz.write(1.0)
@@ -78,7 +78,7 @@ def seq_checker(msg_payload):
 timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
 
-
+mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker())
 #to react to incoming messages from mqtt
 #mqtt_handler.observe_event(topic_of_choosing, function to be run when the message is recieved)
 #the function must be of the form function(payload) where payload is where the mqtt message content will be passed into the function
