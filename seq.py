@@ -51,6 +51,15 @@ def publish_li():
 timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
 
+
+#to react to incoming messages from mqtt
+#mqtt_handler.observe_event(topic_of_choosing, function to be run when the message is recieved)
+#the function must be of the form function(payload) where payload is where the mqtt message content will be passed into the function
+#example function
+# def func(msg_payload):
+#     print(msg_payload)
+#     #returns nothing
+
 while True:
     board.iterate()
     if pb1.read() is None or pb2.read() is None or thm.read() is None:
