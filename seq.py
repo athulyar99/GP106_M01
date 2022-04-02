@@ -34,25 +34,31 @@ mqtt_handler = MQTT_Handler(MQTT_NAME,MQTT_SERVER,MQTT_PORT)
 timed_event_manager = TimedEventManager()
 
 
-def convert_voltage_to_temp(temp):
+def convert_voltage_to_temp(temp): #converts reading from thermistor to temperature in celcius
     return temp
 
-def publish_temperature():
+def publish_temperature(): #To publish temperature value to mqtt broker
     print("publishsing temperature")
     temp =convert_voltage_to_temp(thm.read())
     mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
 
-def publish_li():
+def publish_li(): #To publish light intensity value to mqtt broker
     print("publishsing light")
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
 
-def publish_seq():
+def publish_seq(): #To publish entered sequence to mqtt broker
     print('Publishing Entered sequence')
     seq = CheckSeq
     mqtt_handler.publish(tp.CDR.SEQ_SEND,seq)
 
-def seq_checker(msg_payload):
+def publish_pressure(): #To publish floor pressure value to mqtt broker
+    print("Publishing Pressure")
+    pressure = pressure_sensor.read()
+    mqtt_handler.publish(tp.CDR.FLOOR_PRESSURE,pressure)
+
+
+def seq_checker(msg_payload): #To react the signal sent by mqtt broker after reviewing the entered sequence
     if msg_payload == "GRANTED TOP SECRET":
         print('Access Granted - TOP SECRET')
         locked = False
@@ -74,9 +80,14 @@ def seq_checker(msg_payload):
         buzz.write(1.0)
         CheckSeq.clear()
 
+def lockdown(msg_payload): #Turns the system into lockdown status
+    buzz.write(1.0)
+    LED_lockdown.write(1.0)
+
 
 timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
+timed_event_manager.add_event(1,publish_pressure)
 
 mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
 #to react to incoming messages from mqtt

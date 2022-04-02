@@ -45,25 +45,26 @@ class PO:
     TEMPERATURE = _po("TEMPERATURE")
     SYS_ERR = _po("SYS_ERR")
     KNOCK_SEND = _po("KNOCK_CODE")
-    KNOCK_ACCESS = _po("KNOCK_ACESS")
+    KNOCK_ACCESS = _po("KNOCK_ACCESS")
     ALARM_ON = _po("ALARM_ON")
     RAISE_ALARM = _po("ALARM_RAISE")
     PANIC_BUTTON = _po("PANIC_BUTTON")
     LOCKDOWN = _po("LOCKDOWN")
 
 class CDR:
-    ###Topics
+
     _cdr = Topic_Wrapper('CDR')
+
+    ###Topics
     TEMPERATURE = _cdr("TEMPERATURE")
     LIGHT_INTENSITY = _cdr("LIGHT_INTENSITY")
-    FLOOR_PRESSURE = _cdr("FLOOR_PRESSURE")
+    FLOOR_PRESSURE = _cdr("FLOOR_PRESSURE") ####
     SYS_ERR = _cdr("SYS_ERR")
     SEQ_SEND = _cdr("SEQ_SEND")
     SEQ_ACCESS = _cdr("SEQ_ACCESS")
     ALARM_ON = _cdr("ALARM_ON")
     RAISE_ALARM = _cdr("ALARM_RAISE")
-    PANIC_BUTTON = _cdr("PANIC_BUTTON")
-    LOCKDOWN = _cdr("LOCKDOWN")
+    LOCKDOWN = _cdr("LOCKDOWN") ####
 
     #Topic Payloads
     GRANTED_TOPSECRET = "GRANTED TOP SECRET"
