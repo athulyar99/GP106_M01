@@ -8,6 +8,8 @@ from Utility.Event import TimedEventManager
 import Topics as tp
 board = Arduino('COM3')
 
+iterator = util.Iterator(board)
+iterator.start()
 
 MQTT_NAME = "G9_CDR"
 MQTT_PORT = 8883
@@ -38,22 +40,22 @@ def convert_voltage_to_temp(temp): #converts reading from thermistor to temperat
     return temp
 
 def publish_temperature(): #To publish temperature value to mqtt broker
-    print("publishsing temperature")
+    # print("publishsing temperature")
     temp =convert_voltage_to_temp(thm.read())
     mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
 
 def publish_li(): #To publish light intensity value to mqtt broker
-    print("publishsing light")
+    # print("publishsing light")
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
 
 def publish_seq(): #To publish entered sequence to mqtt broker
     print('Publishing Entered sequence')
-    seq = CheckSeq
+    seq = str(CheckSeq)
     mqtt_handler.publish(tp.CDR.SEQ_SEND,seq)
 
 def publish_pressure(): #To publish floor pressure value to mqtt broker
-    print("Publishing Pressure")
+    # print("Publishing Pressure")
     pressure = pressure_sensor.read()
     mqtt_handler.publish(tp.CDR.FLOOR_PRESSURE,pressure)
 
@@ -78,7 +80,6 @@ def seq_checker(msg_payload): #To react the signal sent by mqtt broker after rev
         print('Access Denied')
         LED_lockdown.write(1.0)
         buzz.write(1.0)
-        CheckSeq.clear()
 
 def lockdown(msg_payload): #Turns the system into lockdown status
     buzz.write(1.0)
@@ -98,7 +99,7 @@ mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
 #     #returns nothing
 
 while True:
-    board.iterate()
+    # board.iterate()
     if pb1.read() is None or pb2.read() is None or thm.read() is None:
         continue
   # check whether board ready to get inputs
@@ -106,7 +107,7 @@ while True:
 
 while True:
     timed_event_manager.run()
-    board.iterate()
+    # board.iterate()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
 
@@ -120,6 +121,9 @@ while True:
     if(locked):
         time.sleep(0.5)
         li = LDR.read()  # get resistance of LDR - 0.5-0.9
+
+        print(li)
+
         LEDr.write(0.3)  # red LED on
         LEDg.write(0.0)  # green LED off
         if li > 0.75:
@@ -150,8 +154,12 @@ while True:
         # print(pb1.read(), pb2.read())
         # print("hello world")
 
+        print(CheckSeq)
+
         if len(CheckSeq) == 4:
+            print('Hello world')
             publish_seq()
+            CheckSeq.clear()
 
     else:
         # print(locked)
@@ -166,6 +174,6 @@ while True:
         buzz.write(0.0)  # buzzer off
         LED_lockdown.write(0.0)
 
-        CheckSeq.clear()  # reset check sequence
+        # CheckSeq.clear()  # reset check sequence
 
 board.exit()
