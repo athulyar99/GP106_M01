@@ -23,7 +23,7 @@ LEDg = board.get_pin('d:5:p') #green LED -> correct sequence
 while True:
     if pb1.read() is None or pb2.read() is None:
         continue
-    print('Ready') #check whether board ready to get inputs
+    print('Ready 1234') #check whether board ready to get inputs
     break
 
 while True:

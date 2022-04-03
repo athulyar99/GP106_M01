@@ -6,7 +6,7 @@ import pyfirmata
 from Network.mqtt import MQTT_Handler
 from Utility.Event import TimedEventManager
 import Topics as tp
-board = Arduino('COM5')
+board = Arduino('COM3')
 
 
 MQTT_NAME = "G9_CDR"
@@ -109,6 +109,8 @@ while True:
     board.iterate()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
+
+    # print('hello world')
     if temp > 0.75:
         buzz.write(1.0)
         LED_lockdown.write(1.0)  # buzzer on
