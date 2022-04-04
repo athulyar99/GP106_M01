@@ -24,6 +24,9 @@ CorSeq_secret = [1, 1, 2, 2]  # correct sequence - secret
 CorSeq_top = [1, 2, 1, 2]  # correct sequence - top secret
 CheckSeq = []  # to store entered squence
 locked = True  # True -> no/wrong sequence, False -> correct sequence
+unusual_li = False
+unusual_floor_pressure = False
+fire = False
 
 pb1 = board.get_pin('d:12:i')  # push button 1 - security 1
 pb2 = board.get_pin('d:2:i')  # push button 2 - security 2
@@ -63,6 +66,19 @@ def publish_pressure(): #To publish floor pressure value to mqtt broker
     pressure = pressure_sensor.read()
     mqtt_handler.publish(tp.CDR.FLOOR_PRESSURE,pressure)
 
+def publish_unusual_events():
+    if unusual_li == True:
+        logging.debug("Publishing unusual li")
+        mqtt_handler.publish(tp.CDR.UNUSUAL_LI, li)
+
+    if unusual_floor_pressure == True:
+        logging.debug("Publishing unusual floor pressure")
+        mqtt_handler.publish(tp.CDR.UNUSUAL_FLOOR_PRESSURE, pressure)
+
+    if unusual_floor_pressure == True:
+        logging.debug("Publishing fire")
+        mqtt_handler.publish(tp.CDR.FIRE, temp)
+
 
 def seq_checker(msg_payload): #To react the signal sent by mqtt broker after reviewing the entered sequence
     global locked
@@ -96,6 +112,7 @@ def lockdown(msg_payload): #Turns the system into lockdown status
 
 timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
+timed_event_manager.add_event(1,publish_unusual_events)
 
 mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
 mqtt_handler.observe_event(tp.CDR.LOCKDOWN, lockdown)
@@ -117,13 +134,13 @@ while True:
 
 
 while True:
-    # print(locked)
     timed_event_manager.run()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
 
     if temp > 0.75:
         buzz.write(1.0)
+        fire = True
         LED_lockdown.write(1.0)  # buzzer on
     else:
         buzz.write(0.0)  # buzzer off
@@ -137,6 +154,7 @@ while True:
         if li > 0.75:
             buzz.write(1.0)  # buzzer on
             LED_lockdown.write(1.0)
+            unusual_li = True
         else:
             buzz.write(0.0)  # buzzer off
 
@@ -145,6 +163,7 @@ while True:
         if pressure_sensor_status is True:
             buzz.write(1.0)  # buzzer on
             LED_lockdown.write(1.0)
+            unusual_floor_pressure = True
             publish_pressure()
 
         if pb1.read() == True and pb2.read() == True:  # both pressed
@@ -173,6 +192,9 @@ while True:
         locked = True
         buzz.write(0.0)  # buzzer off
         LED_lockdown.write(0.0)
+        unusual_li = False
+        unusual_floor_pressure = False
+        fire = False
 
         CheckSeq.clear()  # reset check sequence
 

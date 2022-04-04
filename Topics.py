@@ -65,6 +65,9 @@ class CDR:
     ALARM_ON = _cdr("ALARM_ON")
     RAISE_ALARM = _cdr("ALARM_RAISE")
     LOCKDOWN = _cdr("LOCKDOWN") ####
+    FIRE = _cdr("FIRE")
+    UNUSUAL_LI = _cdr("UNUSUAL_LI")
+    UNUSUAL_FLOOR_PRESSURE = _cdr("UNUSUAL_FLOOR_PRESSURE")
 
     #Topic Payloads
     GRANTED_TOPSECRET = "GRANTED TOP SECRET"
