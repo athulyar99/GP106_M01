@@ -151,12 +151,13 @@ while True:
 
         LEDr.write(0.3)  # red LED on
         LEDg.write(0.0)  # green LED off
-        if li > 0.75:
+        if li > 0.8:
             buzz.write(1.0)  # buzzer on
             LED_lockdown.write(1.0)
             unusual_li = True
         else:
             buzz.write(0.0)  # buzzer off
+            unusual_li = False
 
         pressure_sensor_status = pressure_sensor.read()
 
