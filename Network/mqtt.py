@@ -106,6 +106,7 @@ class MQTT_Handler(mqtt.Client):
         while (counter < self.max_count):
             try:
                 self.connect(self.my_server,self.my_port)
+                return
             except Exception:
                 logging.warning("Reconnection Failed trying again")
 
