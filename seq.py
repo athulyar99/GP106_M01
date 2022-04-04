@@ -6,6 +6,10 @@ import pyfirmata
 from Network.mqtt import MQTT_Handler
 from Utility.Event import TimedEventManager
 import Topics as tp
+import logging
+
+logging.basicConfig(level = logging.WARNING)
+
 board = Arduino('COM3')
 
 iterator = util.Iterator(board)
@@ -45,16 +49,17 @@ def publish_temperature(): #To publish temperature value to mqtt broker
     mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
 
 def publish_li(): #To publish light intensity value to mqtt broker
+    logging.debug('Publishing Light Intensity')
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
 
 def publish_seq(): #To publish entered sequence to mqtt broker
-    print('Publishing Entered sequence')
+    logging.debug('Publishing Entered sequence')
     seq = str(CheckSeq)
     mqtt_handler.publish(tp.CDR.SEQ_SEND,seq)
 
 def publish_pressure(): #To publish floor pressure value to mqtt broker
-    # print("Publishing Pressure")
+    logging.debug("Publishing Pressure")
     pressure = pressure_sensor.read()
     mqtt_handler.publish(tp.CDR.FLOOR_PRESSURE,pressure)
 
@@ -112,7 +117,7 @@ while True:
 
 
 while True:
-    print(locked)
+    # print(locked)
     timed_event_manager.run()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
@@ -157,14 +162,12 @@ while True:
         print(CheckSeq)
 
         if len(CheckSeq) == 4:
-            print('Hello world')
             publish_seq()
             CheckSeq.clear()
 
     else:
         LEDg.write(0.3)  # green LED on
         LEDr.write(0.0)  # red LED off
-
 
     if pb3.read() == True:  # if reset button is pressed
         locked = True
