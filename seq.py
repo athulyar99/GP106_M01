@@ -37,15 +37,14 @@ timed_event_manager = TimedEventManager()
 
 
 def convert_voltage_to_temp(temp): #converts reading from thermistor to temperature in celcius
-    return temp
+    tempC = temp*30+10
+    return tempC
 
 def publish_temperature(): #To publish temperature value to mqtt broker
-    # print("publishsing temperature")
-    temp =convert_voltage_to_temp(thm.read())
+    temp =round(convert_voltage_to_temp(thm.read()),2)
     mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
 
 def publish_li(): #To publish light intensity value to mqtt broker
-    # print("publishsing light")
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
 
@@ -61,19 +60,23 @@ def publish_pressure(): #To publish floor pressure value to mqtt broker
 
 
 def seq_checker(msg_payload): #To react the signal sent by mqtt broker after reviewing the entered sequence
+    global locked
     if msg_payload == "GRANTED TOP SECRET":
         print('Access Granted - TOP SECRET')
         locked = False
+        LEDr.write(0.0)
         LEDg.write(1.0)
 
     elif msg_payload == "GRANTED SECRET":
         print('Access Granted - SECRET')
         locked = False
+        LEDr.write(0.0)
         LEDg.write(1.0)
 
     elif msg_payload == "GRANTED CONFIDENTIAL":
         print('Access Granted - CONFIDENTIAL')
         locked = False
+        LEDr.write(0.0)
         LEDg.write(1.0)
 
     else:
@@ -90,6 +93,8 @@ timed_event_manager.add_event(1,publish_temperature)
 timed_event_manager.add_event(1,publish_li)
 
 mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
+mqtt_handler.observe_event(tp.CDR.LOCKDOWN, lockdown)
+
 #to react to incoming messages from mqtt
 #mqtt_handler.observe_event(topic_of_choosing, function to be run when the message is recieved)
 #the function must be of the form function(payload) where payload is where the mqtt message content will be passed into the function
@@ -99,19 +104,19 @@ mqtt_handler.observe_event(tp.CDR.SEQ_ACCESS, seq_checker)
 #     #returns nothing
 
 while True:
-    # board.iterate()
     if pb1.read() is None or pb2.read() is None or thm.read() is None:
         continue
   # check whether board ready to get inputs
+    print('Ready')
     break
 
+
 while True:
+    print(locked)
     timed_event_manager.run()
-    # board.iterate()
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
 
-    # print('hello world')
     if temp > 0.75:
         buzz.write(1.0)
         LED_lockdown.write(1.0)  # buzzer on
@@ -121,8 +126,6 @@ while True:
     if(locked):
         time.sleep(0.5)
         li = LDR.read()  # get resistance of LDR - 0.5-0.9
-
-        print(li)
 
         LEDr.write(0.3)  # red LED on
         LEDg.write(0.0)  # green LED off
@@ -151,9 +154,6 @@ while True:
             print('Response Recorded')
             CheckSeq.append(2)
 
-        # print(pb1.read(), pb2.read())
-        # print("hello world")
-
         print(CheckSeq)
 
         if len(CheckSeq) == 4:
@@ -162,18 +162,15 @@ while True:
             CheckSeq.clear()
 
     else:
-        # print(locked)
         LEDg.write(0.3)  # green LED on
         LEDr.write(0.0)  # red LED off
 
-        # time.sleep(1.0)
-        # print(CheckSeq)
 
     if pb3.read() == True:  # if reset button is pressed
         locked = True
         buzz.write(0.0)  # buzzer off
         LED_lockdown.write(0.0)
 
-        # CheckSeq.clear()  # reset check sequence
+        CheckSeq.clear()  # reset check sequence
 
 board.exit()
