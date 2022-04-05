@@ -44,7 +44,7 @@ timed_event_manager = TimedEventManager()
 
 
 def convert_voltage_to_temp(temp): #converts reading from thermistor to temperature in celcius
-    tempC = temp*30+10
+    tempC = temp*(-250)+140
     return tempC
 
 def publish_temperature(): #To publish temperature value to mqtt broker
@@ -73,9 +73,9 @@ def publish_unusual_events():
 
     if unusual_floor_pressure == True:
         logging.debug("Publishing unusual floor pressure")
-        mqtt_handler.publish(tp.CDR.UNUSUAL_FLOOR_PRESSURE, pressure)
+        mqtt_handler.publish(tp.CDR.UNUSUAL_FLOOR_PRESSURE, pressure_sensor_status)
 
-    if unusual_floor_pressure == True:
+    if fire == True:
         logging.debug("Publishing fire")
         mqtt_handler.publish(tp.CDR.FIRE, temp)
 
@@ -137,7 +137,9 @@ while True:
     time.sleep(0.5)
     temp = thm.read()  # get resistance of LDR - 0.5-0.9
 
-    if temp > 0.75:
+    print(temp)
+
+    if convert_voltage_to_temp(temp) > 30:
         buzz.write(1.0)
         fire = True
         LED_lockdown.write(1.0)  # buzzer on
@@ -159,6 +161,8 @@ while True:
             unusual_li = False
 
         pressure_sensor_status = pressure_sensor.read()
+
+        logging.debug(pressure_sensor_status)
 
         if pressure_sensor_status is True:
             buzz.write(1.0)  # buzzer on
