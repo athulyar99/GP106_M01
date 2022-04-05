@@ -19,9 +19,9 @@ MQTT_NAME = "G9_CDR"
 MQTT_PORT = 8883
 MQTT_SERVER = "vpn.ce.pdn.ac.lk"
 
-CorSeq_conf = [1, 1, 0, 2]  # correct sequence - confidential
-CorSeq_secret = [1, 1, 2, 2]  # correct sequence - secret
-CorSeq_top = [1, 2, 1, 2]  # correct sequence - top secret
+# CorSeq_conf = [1, 1, 0, 2]  # correct sequence - confidential
+# CorSeq_secret = [1, 1, 2, 2]  # correct sequence - secret
+# CorSeq_top = [1, 2, 1, 2]  # correct sequence - top secret
 CheckSeq = []  # to store entered squence
 locked = True  # True -> no/wrong sequence, False -> correct sequence
 unusual_li = False
@@ -78,7 +78,6 @@ def publish_unusual_events():
     if unusual_floor_pressure == True:
         logging.debug("Publishing fire")
         mqtt_handler.publish(tp.CDR.FIRE, temp)
-
 
 def seq_checker(msg_payload): #To react the signal sent by mqtt broker after reviewing the entered sequence
     global locked
@@ -179,7 +178,7 @@ while True:
             print('Response Recorded')
             CheckSeq.append(2)
 
-        print(CheckSeq)
+        logging.debug(CheckSeq)
 
         if len(CheckSeq) == 4:
             publish_seq()
