@@ -44,29 +44,55 @@ timed_event_manager = TimedEventManager()
 
 
 def convert_voltage_to_temp(temp): #converts reading from thermistor to temperature in celcius
-    tempC = temp*(-250)+140
+
+    ''' A function to convert thermistor reading to temperature in celcius scale
+
+    example:
+    >>> convert_voltage_to_temp(0.5)
+    17.5402
+
+    >>> convert_voltage_to_temp(0.45)
+    22.35182
+    '''
+
+    tempC = temp*(-96.2324)+65.6564
     return tempC
 
 def publish_temperature(): #To publish temperature value to mqtt broker
+
+    '''A function to publish temperature values to the mqtt broker'''
+
     temp =round(convert_voltage_to_temp(thm.read()),2)
     mqtt_handler.publish(tp.CDR.TEMPERATURE,temp)
 
 def publish_li(): #To publish light intensity value to mqtt broker
+
+    '''A function to publish light intensity values to the mqtt broker'''
+
     logging.debug('Publishing Light Intensity')
     li = LDR.read()
     mqtt_handler.publish(tp.CDR.LIGHT_INTENSITY,li)
 
 def publish_seq(): #To publish entered sequence to mqtt broker
+
+    '''A function to publish entered sequence to the mqtt broker'''
+
     logging.debug('Publishing Entered sequence')
     seq = str(CheckSeq)
     mqtt_handler.publish(tp.CDR.SEQ_SEND,seq)
 
 def publish_pressure(): #To publish floor pressure value to mqtt broker
+
+    '''A function to publish pressure sensor status to the mqtt broker'''
+
     logging.debug("Publishing Pressure")
     pressure = pressure_sensor.read()
     mqtt_handler.publish(tp.CDR.FLOOR_PRESSURE,pressure)
 
 def publish_unusual_events():
+
+    '''A function to publish unusual events to the mqtt broker'''
+
     if unusual_li == True:
         logging.debug("Publishing unusual li")
         mqtt_handler.publish(tp.CDR.UNUSUAL_LI, li)
@@ -80,6 +106,9 @@ def publish_unusual_events():
         mqtt_handler.publish(tp.CDR.FIRE, temp)
 
 def seq_checker(msg_payload): #To react the signal sent by mqtt broker after reviewing the entered sequence
+
+    '''A function to react when a validated sequence returned from the mqtt broker'''
+
     global locked
     if msg_payload == "GRANTED TOP SECRET":
         print('Access Granted - TOP SECRET')
@@ -105,6 +134,9 @@ def seq_checker(msg_payload): #To react the signal sent by mqtt broker after rev
         buzz.write(1.0)
 
 def lockdown(msg_payload): #Turns the system into lockdown status
+
+    '''Function to make the system under lockdown if the lockdown button is pressed'''
+
     buzz.write(1.0)
     LED_lockdown.write(1.0)
 
@@ -123,6 +155,10 @@ mqtt_handler.observe_event(tp.CDR.LOCKDOWN, lockdown)
 # def func(msg_payload):
 #     print(msg_payload)
 #     #returns nothing
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(verbose = True)
 
 while True:
     if pb1.read() is None or pb2.read() is None or thm.read() is None:
