@@ -151,10 +151,6 @@ mqtt_handler.observe_event(tp.CDR.LOCKDOWN, lockdown)
 #to react to incoming messages from mqtt
 #mqtt_handler.observe_event(topic_of_choosing, function to be run when the message is recieved)
 #the function must be of the form function(payload) where payload is where the mqtt message content will be passed into the function
-#example function
-# def func(msg_payload):
-#     print(msg_payload)
-#     #returns nothing
 
 if __name__ == "__main__":
     import doctest
